@@ -1,4 +1,27 @@
+<script type='text/javascript'>
+console.log('the number of products is ' + '<%= @products.count %>' );
+</script>
+
+
 <h2> Products in the market </h2>
+
+<div id="highChartContainer" sytle="min-width: 400px; height: 400px; margin: 0 auto"></div>
+
+<a href="javascript:$('#highChartContainer').toggle()">Chart</a>
+<br />
+<a href="#" onclick="$('#highChartContainer').toggle()">Chart</a>
+<br />
+<a href="javascript:void(0)" onclick="$('#highChartContainer').toggle()">Chart</a>
+<br />
+
+<a href="#" data-hide-element='chart'>Fancy</a>
+<br />
+
+<script type='text/javascript'>
+  $('[data-hide-element=chart]').on('click', function(){
+    $('#highChartContainer').toggle()
+  });
+</script>
 
 <table>
   <tbody>
@@ -13,16 +36,43 @@
       <tr>
         <td><%= product.id %></td>
       	<td><%= product.name %></td>
-      	<td>$<%= product.price %></td>
+      	<td data-product='<%= product.id %>'>$<%= product.price %></td>
       	<td><%= product.user.name if product.user.present? %></td>
+        <td><%= link_to "+", product_path(product),
+                'data-incr-price' => product.id,
+                :method           => :put %> </td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
-   
-   
-	
- 
 
 
+
+
+<script type='text/javascript'>
+  $(document).ready(function(){  
+    chart = new Highcharts.Chart({
+    chart: {
+        renderTo: 'highChartContainer',
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false
+    },
+    title: {
+        text: 'Browser market shares at a specific website, 2010'
+    },
+    series: [{
+        type: 'pie',
+        name: 'Browser share',
+        data:
+            <%= 
+              @products.map do |product|
+                [product.name, product.price/@sum_price]
+              end.to_json.html_safe
+            %>
+    }]
+  });
+});
+</script>
+  
